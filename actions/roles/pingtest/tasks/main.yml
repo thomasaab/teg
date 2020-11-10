@@ -1,0 +1,122 @@
+---
+#
+# Begin: Mandatory
+#
+- name: Update the CR as starting
+  block:
+    - debug:
+        msg: "Ansible execution of action: {{ pystol_action_id }}"
+    - name: Change the CR operator state
+      pystol.actions.patch_cr:
+        name: "{{ pystol_action_id }}"
+        key: "workflow_state"
+        value: "PystolOperatorExecutingAction"
+    - name: Change the CR action state
+      pystol.actions.patch_cr:
+        name: "{{ pystol_action_id }}"
+        key: "action_state"
+        value: "PystolActionRunning"
+  when: pystol_action_id is defined
+#
+# End: Mandatory
+#
+- name: Action execution block
+  block:
+    - name: Gather some real facts from the role
+      pystol.actions.real_facts:
+        name: This is a test
+      register: testout
+    - debug:
+        msg: "{{ testout }}"
+    - name: Get a list of all pods from any namespace
+      k8s_info:
+        kind: Pod
+      register: pingtest_pod_list
+    - debug: var=pingtest_pod_list
+    - name: Get the Internal IP of the first node
+      shell: |
+        kubectl get nodes -o \
+        jsonpath='{$.items[*].status.addresses[?(@.type=="InternalIP")].address}' | \
+        head -1
+      register: pingtest_node_ip
+    - debug: var=pingtest_node_ip.stdout
+    - name: Ping the internal IP of a node from the pod
+      command: "ping -c 2 {{ pingtest_node_ip.stdout }}"
+      register: ping_result
+      # Here we make the task fail
+      # depending on the actin execution
+      failed_when: >
+        (ping_result.stderr | length > 0) or
+        (ping_result.rc == 10)
+    - debug: msg="{{ ping_result.stderr }}"
+    - debug: msg="{{ ping_result.stdout }}"
+    #
+    # Begin: Mandatory
+    #
+    - name: Update the CR as ended OK
+      block:
+        - debug:
+
+            msg: "Action ended OK: {{ pystol_action_id }}"
+        - name: Change the CR action state
+          pystol.actions.patch_cr:
+            name: "{{ pystol_action_id }}"
+            key: "action_state"
+            value: "PystolActionEndedSuccessfully"
+      when: pystol_action_id is defined
+    #
+    # End: Mandatory
+    #
+  rescue:
+    #
+    # Begin: Mandatory
+    #
+    - name: Update the CR as ended with errors
+      block:
+        - debug:
+            msg: "Action ended with errors: {{ pystol_action_id }}"
+        - name: Change the CR action state
+          pystol.actions.patch_cr:
+            name: "{{ pystol_action_id }}"
+            key: "action_state"
+            value: "PystolActionEndedFail"
+      when: pystol_action_id is defined
+    #
+    # End: Mandatory
+    #
+  always:
+    #
+    # In the set_fact you need to calculate
+    # whatever the pystol action should output
+    # as a result
+    #
+    - name: Set Result facts
+      set_fact:
+        pystol_action_stdout: "{{ ''.join(ping_result.stdout_lines) | replace('\\n', '') | replace('\\t', '') }}"
+        pystol_action_stderr: "{{ ''.join(ping_result.stderr_lines) | replace('\\n', '') | replace('\\t', '') }}"
+    #
+    # Begin: Mandatory
+    #
+    - name: Update the CR as workflow ended
+      block:
+        - debug:
+            msg: "Ansible execution of action: {{ pystol_action_id }}"
+        - name: Change the CR action stdout
+          pystol.actions.patch_cr:
+            name: "{{ pystol_action_id }}"
+            key: "action_stdout"
+            value: "{{ pystol_action_stdout }}"
+        - name: Change the CR action stderr
+          pystol.actions.patch_cr:
+            name: "{{ pystol_action_id }}"
+            key: "action_stderr"
+            value: "{{ pystol_action_stderr }}"
+        - name: Change the CR operator state
+          pystol.actions.patch_cr:
+            name: "{{ pystol_action_id }}"
+            key: "workflow_state"
+            value: "PystolOperatorEnded"
+      when: pystol_action_id is defined
+    #
+    # End: Mandatory
+    #

@@ -1,0 +1,21 @@
+---
+namespace: "pystol"
+name: "actions"
+version: "0.8.6"
+description: "Pystol native actions"
+authors:
+  - Carlos Camacho <ccamacho@redhat.com>
+  - Oscar Gerdel <gerdeloscar@gmail.com>
+  - Thomas Alfonso <thomalfonso@gmail.com>
+license: ["Apache-2.0"]
+readme: README.md
+tags:
+  - pystol
+  - pystol_actions
+  - fault_injection
+  - chaos_engineering
+  - pingtest
+repository: "https://github.com/pystol/pystol-galaxy"
+homepage: "https://www.pystol.org"
+documentation: "https://docs.pystol.org"
+issues: "https://github.com/pystol/pystol-galaxy/issues"
