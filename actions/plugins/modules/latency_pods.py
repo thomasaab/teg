@@ -158,10 +158,10 @@ def run_module():
     stdout_lines = ["outl1", "outl1"]
 
     module.log(msg='test!!!!!!!!!!!!!!!!!')
-
+    module.log(msg='test0')
     namespace = module.params['namespace']
     amount = module.params['amount']
-
+    module.log(msg='test1')
     result = dict(
         changed=True,
         stdout=stdout,
