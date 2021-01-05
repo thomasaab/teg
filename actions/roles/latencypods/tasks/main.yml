@@ -1,0 +1,114 @@
+---
+#
+# Begin: Mandatory
+#
+- name: Update the CR as starting
+  block:
+    - debug:
+        msg: "Ansible execution of action: {{ pystol_action_id }}"
+    - name: Change the CR operator state
+      pystol.actions.patch_cr:
+        name: "{{ pystol_action_id }}"
+        key: "workflow_state"
+        value: "PystolOperatorExecutingAction"
+    - name: Change the CR action state
+      pystol.actions.patch_cr:
+        name: "{{ pystol_action_id }}"
+        key: "action_state"
+        value: "PystolActionRunning"
+  when: pystol_action_id is defined
+#
+# End: Mandatory
+#
+- name: Action execution block
+  block:
+    # Galaxy is not responsible for installing modules requirements
+    - name: Install playbook requirements
+      pip:
+        name:
+          - scipy
+          - matplotlib
+        extra_args: --user
+    - name: Run the Pystol module to latency some random pods
+      pystol.actions.latency_pods:
+        namespace: "{{ pystol_latencypods_namespace|default('default')}}"
+        distribution: "{{ pystol_latencypods_distribution|default('poisson') }}"
+        amount: "{{ pystol_latencypods_amount|default(3) }}"
+      register: testout
+    - debug: msg="{{ testout.stderr }}"
+    - debug: msg="{{ testout.stdout }}"
+    - debug: msg="{{ testout }}"
+      # Here we make the task fail
+      # depending on the action execution
+      # ALL METHODS SHOULD RETURN STDERR AND STDOUT
+      failed_when: >
+        (testout.rc != 0)
+    #
+    # Begin: Mandatory
+    #
+    - name: Update the CR as ended OK
+      block:
+        - debug:
+            msg: "Action ended OK: {{ pystol_action_id }}"
+        - name: Change the CR action state
+          pystol.actions.patch_cr:
+            name: "{{ pystol_action_id }}"
+            key: "action_state"
+            value: "PystolActionEndedSuccessfully"
+      when: pystol_action_id is defined
+    #
+    # End: Mandatory
+    #
+  rescue:
+    #
+    # Begin: Mandatory
+    #
+    - name: Update the CR as ended with errors
+      block:
+        - debug:
+            msg: "Action ended with errors: {{ pystol_action_id }}"
+        - name: Change the CR action state
+          pystol.actions.patch_cr:
+            name: "{{ pystol_action_id }}"
+            key: "action_state"
+            value: "PystolActionEndedFail"
+      when: pystol_action_id is defined
+    #
+    # End: Mandatory
+    #
+  always:
+    #
+    # In the set_fact you need to calculate
+    # whatever the pystol action should output
+    # as a result
+    #
+    - name: Set Result facts
+      set_fact:
+        pystol_action_stdout: "{{ ''.join(testout.stdout_lines) | replace('\\n', '') | replace('\\t', '') }}"
+        pystol_action_stderr: "{{ ''.join(testout.stderr_lines) | replace('\\n', '') | replace('\\t', '') }}"
+    #
+    # Begin: Mandatory
+    #
+    - name: Update the CR as workflow ended
+      block:
+        - debug:
+            msg: "Ansible execution of action: {{ pystol_action_id }}"
+        - name: Change the CR action stdout
+          pystol.actions.patch_cr:
+            name: "{{ pystol_action_id }}"
+            key: "action_stdout"
+            value: "{{ pystol_action_stdout }}"
+        - name: Change the CR action stderr
+          pystol.actions.patch_cr:
+            name: "{{ pystol_action_id }}"
+            key: "action_stderr"
+            value: "{{ pystol_action_stderr }}"
+        - name: Change the CR operator state
+          pystol.actions.patch_cr:
+            name: "{{ pystol_action_id }}"
+            key: "workflow_state"
+            value: "PystolOperatorEnded"
+      when: pystol_action_id is defined
+    #
+    # End: Mandatory
+    #
