@@ -91,16 +91,49 @@ global_unavailable = []
 global_kill = []
 
 
-def delete_pod(name, namespace):
-    core_v1 = client.CoreV1Api()
-    delete_options = client.V1DeleteOptions()
+def exect_pod(name, namespace):
+    api_instance = client.CoreV1Api()
     try:
-        core_v1.delete_namespaced_pod(
-            name=name,
-            namespace=namespace,
-            body=delete_options)
+        resp = api_instance.read_namespaced_pod(name=name,
+                                                namespace=namespace)
     except ApiException as e:
-        print("CoreV1Api->delete_namespaced_pod: %s\n" % e)
+        if e.status != 404:
+            print("Unknown error: %s" % e)
+            exit(1)
+        # Calling exec and waiting for response
+    exec_command = [
+        '/bin/sh',
+        '-c',
+        'echo This message goes to stderr; echo This message goes to stdout']
+    resp = stream(api_instance.connect_get_namespaced_pod_exec,
+                  name,
+                  'default',
+                  command=exec_command,
+                  stderr=True, stdin=False,
+                  stdout=True, tty=False)
+    print("Response: " + resp)
+
+
+    while resp.is_open():
+        resp.update(timeout=1)
+        if resp.peek_stdout():
+            print("STDOUT: %s" % resp.read_stdout())
+        if resp.peek_stderr():
+            print("STDERR: %s" % resp.read_stderr())
+        if commands:
+            c = commands.pop(0)
+            print("Running command... %s\n" % c)
+            resp.write_stdin(c + "\n")
+        else:
+            break
+
+    resp.write_stdin("date\n")
+    sdate = resp.readline_stdout(timeout=3)
+    print("Server date command returns: %s" % sdate)
+    resp.write_stdin("whoami\n")
+    user = resp.readline_stdout(timeout=3)
+    print("Server user is: %s" % user)
+    resp.close()
 
 
 def get_pods(namespace=''):
@@ -185,9 +218,9 @@ def run_module():
         else:
             to_be_killed = random.sample(pod_list, int(experiment))
 
-        # for pod in to_be_killed:
-        #     delete_pod(pod.metadata.name,
-        #                pod.metadata.namespace)
+        for pod in to_be_killed:
+            exect_pod(pod.metadata.name,
+                       pod.metadata.namespace)
         print("To be killed: " + str(experiment))
         global_kill.append((datetime.datetime.now(), int(experiment)))
         time.sleep(10)
