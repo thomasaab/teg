@@ -81,6 +81,8 @@ from scipy.stats import poisson
 import matplotlib.pyplot as plt
 from kubernetes import client
 from kubernetes.client.rest import ApiException
+import time
+from kubernetes.stream import stream
 import datetime
 import time
 from ansible_collections.pystol.actions.plugins.module_utils.k8s_common import load_kubernetes_config
@@ -112,20 +114,6 @@ def exect_pod(name, namespace):
                   stderr=True, stdin=False,
                   stdout=True, tty=False)
     print("Response: " + resp)
-
-
-    while resp.is_open():
-        resp.update(timeout=1)
-        if resp.peek_stdout():
-            print("STDOUT: %s" % resp.read_stdout())
-        if resp.peek_stderr():
-            print("STDERR: %s" % resp.read_stderr())
-        if commands:
-            c = commands.pop(0)
-            print("Running command... %s\n" % c)
-            resp.write_stdin(c + "\n")
-        else:
-            break
 
     resp.write_stdin("date\n")
     sdate = resp.readline_stdout(timeout=3)
@@ -187,6 +175,8 @@ def run_module():
         name=module.params['namespace']
     )
 
+    module.log(msg='test2')
+
     # random numbers from poisson distribution
     n = amount
     a = 0
@@ -197,6 +187,8 @@ def run_module():
     configuration = client.Configuration()
     configuration.assert_hostname = False
     client.api_client.ApiClient(configuration=configuration)
+
+    module.log(msg='test3')
     for experiment in counts:
         pod_list = get_pods(namespace=namespace)
         aux_li = []
