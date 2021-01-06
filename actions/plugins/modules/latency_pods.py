@@ -114,7 +114,7 @@ def exect_pod(name, namespace):
                   stderr=True, stdin=False,
                   stdout=True, tty=False)
     print("Response: " + resp)
-
+    module.log(msg="Response: " + resp)
     try:
         resp.write_stdin("date\n")
         sdate = resp.readline_stdout(timeout=3)
@@ -125,7 +125,7 @@ def exect_pod(name, namespace):
         resp.close()
     except:
         print("FALLAAAAA")
-
+    module.log(msg="Response2: " + resp)
 
 def get_pods(namespace=''):
     api_instance = client.CoreV1Api()
