@@ -118,7 +118,6 @@ def exect_pod(name, namespace, module):
     print("Response: " + resp)
     module.log(msg="Response: " + resp)
     
-    resp.close()
     
 
 def get_pods(namespace=''):
