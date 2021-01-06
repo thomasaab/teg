@@ -117,16 +117,6 @@ def exect_pod(name, namespace, module):
                   stdout=True, tty=False)
     print("Response: " + resp)
     module.log(msg="Response: " + resp)
-    try:
-        resp.write_stdin("date\n")
-        sdate = resp.readline_stdout(timeout=3)
-        print("Server date command returns: %s" % sdate)
-        resp.write_stdin("whoami\n")
-        user = resp.readline_stdout(timeout=3)
-        print("Server user is: %s" % user)
-        resp.close()
-    except:
-        print("FALLAAAAA")
     
     resp.close()
     
