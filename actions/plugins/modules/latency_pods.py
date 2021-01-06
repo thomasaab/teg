@@ -106,8 +106,8 @@ def exect_pod(name, namespace, module):
     exec_command = [
         '/bin/sh',
         '-c',
-        'echo This message goes to stderr; echo This message goes to stdout',
-        'ls -a']
+        'echo This message goes to stderr; echo This message goes to stdout; ls -a',
+        ]
     resp = stream(api_instance.connect_get_namespaced_pod_exec,
                   name,
                   'default',
