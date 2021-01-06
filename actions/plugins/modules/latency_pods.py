@@ -95,6 +95,7 @@ global_kill = []
 
 def exect_pod(name, namespace, module):
     api_instance = client.CoreV1Api()
+    module.log(msg="name pod: " + name)
     try:
         resp = api_instance.read_namespaced_pod(name=name,
                                                 namespace=namespace)
@@ -106,7 +107,7 @@ def exect_pod(name, namespace, module):
     exec_command = [
         '/bin/sh',
         '-c',
-        'echo This message goes to stderr; echo This message goes to stdout; ls -a',
+        'ls -a',
         ]
     resp = stream(api_instance.connect_get_namespaced_pod_exec,
                   name,
@@ -126,7 +127,8 @@ def exect_pod(name, namespace, module):
         resp.close()
     except:
         print("FALLAAAAA")
-    module.log(msg="Response2: " + resp)
+        resp.close()
+    
 
 def get_pods(namespace=''):
     api_instance = client.CoreV1Api()
