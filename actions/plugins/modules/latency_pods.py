@@ -53,7 +53,7 @@ author:
 EXAMPLES = '''
 # Pass in a message
 - name: Test with a message
-  kill_pods:
+  latency_pods:
     namespace: default
     distribution: poisson
     amount: 10
@@ -115,13 +115,16 @@ def exect_pod(name, namespace):
                   stdout=True, tty=False)
     print("Response: " + resp)
 
-    resp.write_stdin("date\n")
-    sdate = resp.readline_stdout(timeout=3)
-    print("Server date command returns: %s" % sdate)
-    resp.write_stdin("whoami\n")
-    user = resp.readline_stdout(timeout=3)
-    print("Server user is: %s" % user)
-    resp.close()
+    try:
+        resp.write_stdin("date\n")
+        sdate = resp.readline_stdout(timeout=3)
+        print("Server date command returns: %s" % sdate)
+        resp.write_stdin("whoami\n")
+        user = resp.readline_stdout(timeout=3)
+        print("Server user is: %s" % user)
+        resp.close()
+    except:
+        print("FALLAAAAA")
 
 
 def get_pods(namespace=''):
@@ -158,10 +161,10 @@ def run_module():
     stdout_lines = ["outl1", "outl1"]
 
     module.log(msg='test!!!!!!!!!!!!!!!!!')
-    module.log(msg='test0')
+
     namespace = module.params['namespace']
     amount = module.params['amount']
-    module.log(msg='test1')
+
     result = dict(
         changed=True,
         stdout=stdout,
@@ -175,7 +178,6 @@ def run_module():
         name=module.params['namespace']
     )
 
-    module.log(msg='test2')
 
     # random numbers from poisson distribution
     n = amount
@@ -188,7 +190,7 @@ def run_module():
     configuration.assert_hostname = False
     client.api_client.ApiClient(configuration=configuration)
 
-    module.log(msg='test3')
+
     for experiment in counts:
         pod_list = get_pods(namespace=namespace)
         aux_li = []
