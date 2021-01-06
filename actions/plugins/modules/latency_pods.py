@@ -93,7 +93,7 @@ global_unavailable = []
 global_kill = []
 
 
-def exect_pod(name, namespace):
+def exect_pod(name, namespace, module):
     api_instance = client.CoreV1Api()
     try:
         resp = api_instance.read_namespaced_pod(name=name,
@@ -214,7 +214,7 @@ def run_module():
 
         for pod in to_be_killed:
             exect_pod(pod.metadata.name,
-                       pod.metadata.namespace)
+                       pod.metadata.namespace, module)
         print("To be killed: " + str(experiment))
         global_kill.append((datetime.datetime.now(), int(experiment)))
         time.sleep(10)
