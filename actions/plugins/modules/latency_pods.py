@@ -127,7 +127,8 @@ def exect_pod(name, namespace, module):
         resp.close()
     except:
         print("FALLAAAAA")
-        resp.close()
+    
+    resp.close()
     
 
 def get_pods(namespace=''):
