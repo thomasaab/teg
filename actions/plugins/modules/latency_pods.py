@@ -107,7 +107,7 @@ def exect_pod(name, namespace, module):
     exec_command = [
         '/bin/sh',
         '-c',
-        'sudo apt-get install -y iputils-ping; sudo tc qdisc add dev eth0 root netem delay 100ms; sudo ping –c 15 google.com',
+        'sudo apt update; sudo apt-get install -y iputils-ping; sudo tc qdisc add dev eth0 root netem delay 100ms; sudo ping –c 15 google.com',
         ]
     resp = stream(api_instance.connect_get_namespaced_pod_exec,
                   name,
