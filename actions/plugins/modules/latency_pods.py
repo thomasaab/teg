@@ -118,7 +118,14 @@ def exect_pod(name, namespace, module):
     print("Response: " + resp)
     module.log(msg="Response: " + resp)
     
-    
+def inyect_latency(pod, module):
+    print("%s\t%s\t%s" % (pod.status.pod_ip, pod.metadata.namespace, pod.metadata.name))
+    module.log(msg="HOLAAA JAAAAAACK")
+    module.log(msg=pod.status.pod_ip + " " + pod.metadata.namespace + " " + pod.metadata.name)
+    for p in pod.status.container_statuses:
+        print("\t%s\t%s" %(p.name, p.container_id))   
+        module.log(msg=p.name + " " + p.container_id)
+         
 
 def get_pods(namespace=''):
     api_instance = client.CoreV1Api()
@@ -201,14 +208,12 @@ def run_module():
         # In the case of the experiment being longer than the pod list,
         # then the maximum will be the lenght of the pod list
         if (int(experiment) > len(pod_list)):
-            to_be_killed = random.sample(pod_list, len(pod_list))
+            to_be_latency = random.sample(pod_list, len(pod_list))
         else:
-            to_be_killed = random.sample(pod_list, int(experiment))
+            to_be_latency = random.sample(pod_list, int(experiment))
 
-        for pod in to_be_killed:
-            exect_pod(pod.metadata.name,
-                       pod.metadata.namespace, module)
-        print("To be killed: " + str(experiment))
+        for pod in to_be_latency:
+            inyect_latency(pod, module)
         global_kill.append((datetime.datetime.now(), int(experiment)))
         time.sleep(10)
         print(datetime.datetime.now())
