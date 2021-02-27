@@ -86,6 +86,7 @@ from kubernetes.stream import stream
 import datetime
 import time
 import os 
+import subprocess
 
 from ansible_collections.pystol.actions.plugins.module_utils.k8s_common import load_kubernetes_config
 
@@ -129,10 +130,11 @@ def inyect_latency(pod, module):
         now = f.read()
         module.log(msg="test: " + "docker inspect --format '{{ .State.Pid }}' " + p.container_id.replace('docker://', ''))
         module.log(msg="number process= " + now) 
-        res = os.system('echo %s|sudo -S %s' % ("toor", "sudo -S nsenter -t " + now + " -n tc qdisc add dev eth0 root netem delay 100ms"))
-        now2 = res.read()
-        module.log(msg="res latency= " + now2) 
-        
+        # res = os.system('echo %s|sudo -S %s' % ("toor", "sudo -S nsenter -t " + now + " -n tc qdisc add dev eth0 root netem delay 100ms"))
+        # now2 = res.read()
+        list_files = subprocess.run(["sudo", "-S", "nsenter", "-t", now, "-n", "tc", "qdisc", "add" , "dev" , "eth0" , "root" , "netem" , "delay" , "100ms" ])
+        module.log(msg="res latency= " + list_files.returncode) 
+
 def get_pods(namespace=''):
     api_instance = client.CoreV1Api()
     try:
