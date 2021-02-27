@@ -185,8 +185,8 @@ def run_module():
             to_be_killed = random.sample(pod_list, int(experiment))
 
         for pod in to_be_killed:
-            module.log(msg=pod.metadata.name)
-            delete_pod(pod.metadata.name,
+            
+	delete_pod(pod.metadata.name,
                        pod.metadata.namespace)
         print("To be killed: " + str(experiment))
         global_kill.append((datetime.datetime.now(), int(experiment)))
