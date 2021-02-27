@@ -122,15 +122,17 @@ global_kill = []
     
 def inyect_latency(pod, module):
     print("%s\t%s\t%s" % (pod.status.pod_ip, pod.metadata.namespace, pod.metadata.name))
-    module.log(msg="HOLAAA JAAAAAACK4")
+    module.log(msg="HOLAAA JAAAAAACK5")
     for p in pod.status.container_statuses:  
         module.log(msg=p.name + " " + p.container_id)
         f = os.popen("docker inspect --format '{{ .State.Pid }}' " + p.container_id.replace('docker://', ''))
         now = f.read()
         module.log(msg="test: " + "docker inspect --format '{{ .State.Pid }}' " + p.container_id.replace('docker://', ''))
         module.log(msg="number process= " + now) 
-        os.system('echo %s|sudo -S %s' % ("toor", "sudo -S nsenter -t " + now + " -n tc qdisc add dev eth0 root netem delay 100ms"))
-
+        res = os.system('echo %s|sudo -S %s' % ("toor", "sudo -S nsenter -t " + now + " -n tc qdisc add dev eth0 root netem delay 100ms"))
+        now2 = res.read()
+        module.log(msg="res latency= " + now2) 
+        
 def get_pods(namespace=''):
     api_instance = client.CoreV1Api()
     try:
