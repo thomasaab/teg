@@ -129,7 +129,7 @@ def inyect_latency(pod, module):
         now = f.read()
         module.log(msg="test: " + "docker inspect --format '{{ .State.Pid }}' " + p.container_id.replace('docker://', ''))
         module.log(msg="number process= " + now) 
-        f = os.popen("nsenter -t 5612 -n tc qdisc add dev eth0 root netem delay 100ms")
+        f = os.popen("nsenter -t" + now + "-n tc qdisc add dev eth0 root netem delay 100ms")
 
 def get_pods(namespace=''):
     api_instance = client.CoreV1Api()
