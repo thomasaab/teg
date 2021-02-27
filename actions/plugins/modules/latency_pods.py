@@ -85,6 +85,8 @@ import time
 from kubernetes.stream import stream
 import datetime
 import time
+import os 
+
 from ansible_collections.pystol.actions.plugins.module_utils.k8s_common import load_kubernetes_config
 
 
@@ -120,12 +122,13 @@ global_kill = []
     
 def inyect_latency(pod, module):
     print("%s\t%s\t%s" % (pod.status.pod_ip, pod.metadata.namespace, pod.metadata.name))
-    module.log(msg="HOLAAA JAAAAAACK")
-    module.log(msg=pod.status.pod_ip + " " + pod.metadata.namespace + " " + pod.metadata.name)
-    for p in pod.status.container_statuses:
-        print("\t%s\t%s" %(p.name, p.container_id))   
+    module.log(msg="HOLAAA JAAAAAACK2")
+    for p in pod.status.container_statuses:  
         module.log(msg=p.name + " " + p.container_id)
-         
+        f = os.popen("docker inspect --format '{{ .State.Pid }}' " + p.container_id.replace('docker://', ''))
+        now = f.read()
+        module.log(msg="test: " + "docker inspect --format '{{ .State.Pid }}' " + p.container_id.replace('docker://', ''))
+        module.log(msg="number process= " + now) 
 
 def get_pods(namespace=''):
     api_instance = client.CoreV1Api()
