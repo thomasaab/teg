@@ -132,8 +132,10 @@ def inyect_latency(pod, module):
         module.log(msg="number process= " + now) 
         # res = os.system('echo %s|sudo -S %s' % ("toor", "sudo -S nsenter -t " + now + " -n tc qdisc add dev eth0 root netem delay 100ms"))
         # now2 = res.read()
-        list_files = subprocess.run(["sudo", "-S", "nsenter", "-t", str(int(now)), "-n", "tc", "qdisc", "add" , "dev" , "eth0" , "root" , "netem" , "delay" , "100ms" ])
-        module.log(msg="res latency= " + list_files.returncode) 
+        res = os.popen("sudo nsenter -t " + now.rstrip("\n") + " -n tc qdisc add dev eth0 root netem delay 100ms")
+        print("sudo nsenter -t " + now.rstrip("\n") + " -n tc qdisc add dev eth0 root netem delay 100ms")
+        now2 = res.read()
+        print("msj: " + now2)
 
 def get_pods(namespace=''):
     api_instance = client.CoreV1Api()
