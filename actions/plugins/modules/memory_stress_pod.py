@@ -118,6 +118,7 @@ def inyect_memory(name, namespace, module):
                   stderr=True, stdin=False,
                   stdout=True, tty=False)
     print("Response: " + resp)
+    module.log(msg="Response: " + resp)
 
 def get_pods(namespace=''):
     api_instance = client.CoreV1Api()
