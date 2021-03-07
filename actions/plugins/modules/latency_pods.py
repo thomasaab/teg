@@ -85,6 +85,9 @@ import time
 from kubernetes.stream import stream
 import datetime
 import time
+import os 
+import subprocess
+
 from ansible_collections.pystol.actions.plugins.module_utils.k8s_common import load_kubernetes_config
 
 
@@ -93,39 +96,46 @@ global_unavailable = []
 global_kill = []
 
 
-def exect_pod(name, namespace, module):
-    api_instance = client.CoreV1Api()
-    module.log(msg="name pod: " + name)
-    try:
-        resp = api_instance.read_namespaced_pod(name=name,
-                                                namespace=namespace)
-    except ApiException as e:
-        if e.status != 404:
-            print("Unknown error: %s" % e)
-            exit(1)
-        # Calling exec and waiting for response
-    exec_command = [
-        '/bin/sh',
-        '-c',
-        'apt update; apt-get install -y iputils-ping; apt-get install iproute2 -y; ping –c 15 google.com; tc qdisc add dev eth0 root netem delay 100ms',
-        ]
-    resp = stream(api_instance.connect_get_namespaced_pod_exec,
-                  name,
-                  'default',
-                  command=exec_command,
-                  stderr=True, stdin=False,
-                  stdout=True, tty=False)
-    print("Response: " + resp)
-    module.log(msg="Response: " + resp)
+# def exect_pod(name, namespace, module):
+#     api_instance = client.CoreV1Api()
+#     module.log(msg="name pod: " + name)
+#     try:
+#         resp = api_instance.read_namespaced_pod(name=name,
+#                                                 namespace=namespace)
+#     except ApiException as e:
+#         if e.status != 404:
+#             print("Unknown error: %s" % e)
+#             exit(1)
+#         # Calling exec and waiting for response
+#     exec_command = [
+#         '/bin/sh',
+#         '-c',
+#         'apt update; apt-get install -y iputils-ping; apt-get install iproute2 -y; ping –c 15 google.com; tc qdisc add dev eth0 root netem delay 100ms',
+#         ]
+#     resp = stream(api_instance.connect_get_namespaced_pod_exec,
+#                   name,
+#                   'default',
+#                   command=exec_command,
+#                   stderr=True, stdin=False,
+#                   stdout=True, tty=False)
+#     print("Response: " + resp)
+#     module.log(msg="Response: " + resp)
     
 def inyect_latency(pod, module):
     print("%s\t%s\t%s" % (pod.status.pod_ip, pod.metadata.namespace, pod.metadata.name))
-    module.log(msg="HOLAAA JAAAAAACK")
-    module.log(msg=pod.status.pod_ip + " " + pod.metadata.namespace + " " + pod.metadata.name)
-    for p in pod.status.container_statuses:
-        print("\t%s\t%s" %(p.name, p.container_id))   
+    module.log(msg="HOLAAA JAAAAAACK6")
+    for p in pod.status.container_statuses:  
         module.log(msg=p.name + " " + p.container_id)
-         
+        f = os.popen("docker inspect --format '{{ .State.Pid }}' " + p.container_id.replace('docker://', ''))
+        now = f.read()
+        # module.log(msg="test: " + "docker inspect --format '{{ .State.Pid }}' " + p.container_id.replace('docker://', ''))
+        module.log(msg="number process= " + now) 
+        # res = os.system('echo %s|sudo -S %s' % ("toor", "sudo -S nsenter -t " + now + " -n tc qdisc add dev eth0 root netem delay 100ms"))
+        # now2 = res.read()
+        res = os.popen("sudo nsenter -t " + now.rstrip("\n") + " -n tc qdisc add dev eth0 root netem delay 100ms")
+        print("sudo nsenter -t " + now.rstrip("\n") + " -n tc qdisc add dev eth0 root netem delay 100ms")
+        now2 = res.read()
+        print("msj: " + now2)
 
 def get_pods(namespace=''):
     api_instance = client.CoreV1Api()
