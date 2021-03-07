@@ -29,11 +29,11 @@
           - scipy
           - matplotlib
         extra_args: --user
-    - name: Run the Pystol module to latency some random pods
-      pystol.actions.latency_pods:
-        namespace: "{{ pystol_latencypods_namespace|default('default')}}"
-        distribution: "{{ pystol_latencypods_distribution|default('poisson') }}"
-        amount: "{{ pystol_latencypods_amount|default(3) }}"
+    - name: Run the Pystol module to stress network some random pods
+      pystol.actions.network_stress_pod:
+        namespace: "{{ pystol_networkstresspod_namespace|default('default')}}"
+        distribution: "{{ pystol_networkstresspod_distribution|default('poisson') }}"
+        amount: "{{ pystol_networkstresspod_amount|default(3) }}"
       register: testout
     - debug: msg="{{ testout.stderr }}"
     - debug: msg="{{ testout.stdout }}"
