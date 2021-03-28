@@ -53,13 +53,6 @@ def get_pods(namespace=''):
     except ApiException as e:
         print("CoreV1Api->list_pod_for_all_namespaces: %s\n" % e)
 
-def get_pod_by_name(namespace='',name='')
-    try:
-        resp = api_instance.read_namespaced_pod(name=name, namespace=namespace)
-        return resp
-    except ApiException as e:
-        print("CoreV1Api->read_namespaced_pod: %s\n" % e)    
-
 def main():
     # contexts, active_context = config.list_kube_config_contexts()
     # if not contexts:
@@ -83,7 +76,7 @@ def main():
     amount = 1
     n = amount
     a = 0
-    if(podName == 'random poisson')
+    if(podName == 'random poisson'):
         data_poisson = poisson.rvs(mu=10, size=n, loc=a)
         counts, bins, bars = plt.hist(data_poisson)
         plt.close()
@@ -113,9 +106,11 @@ def main():
                         pod.metadata.namespace)
             # time.sleep(10)
             print(datetime.datetime.now())
-    else
-        pod = get_pod_by_name(namespace=namespace,pod=podName)
-        print("Pod: "+ pod)
+    else:
+        pod = get_pod_by_name(namespace=namespace,name=podName)
+        inyect_stress(pod.metadata.name,
+                        pod.metadata.namespace)
+        # print("Pod: "+ pod)
 
 
 if __name__ == '__main__':
