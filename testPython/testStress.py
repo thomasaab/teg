@@ -52,8 +52,9 @@ def get_pods(namespace=''):
         return api_response
     except ApiException as e:
         print("CoreV1Api->list_pod_for_all_namespaces: %s\n" % e)
-        
+
 def get_pod_by_name(namespace='',name=''):
+    api_instance = client.CoreV1Api()
     try:
         resp = api_instance.read_namespaced_pod(name=name, namespace=namespace)
         return resp
