@@ -109,7 +109,7 @@ def inyect_disk(name, namespace, module, duration):
     exec_command = [
         '/bin/sh',
         '-c',
-        'apt update; apt-get install -y stress-ng; stress-ng --hdd 1 --aggressive --timeout '+duration+'m',
+        'apt update; apt-get install -y stress-ng; stress-ng --hdd 1 --aggressive --timeout '+str(duration)+'m',
         ]
     resp = stream(api_instance.connect_get_namespaced_pod_exec,
                   name,

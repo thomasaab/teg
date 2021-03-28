@@ -108,7 +108,7 @@ def inyect_cpu(name, namespace, module, duration):
     exec_command = [
         '/bin/sh',
         '-c',
-        'apt update; apt-get install -y stress-ng; stress-ng --version; stress-ng --cpu 8 --io 4 --vm 2 --vm-bytes 128M --timeout '+duration+'m',
+        'apt update; apt-get install -y stress-ng; stress-ng --version; stress-ng --cpu 8 --io 4 --vm 2 --vm-bytes 128M --timeout '+str(duration)+'m',
         ]
     resp = stream(api_instance.connect_get_namespaced_pod_exec,
                   name,
