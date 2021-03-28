@@ -32,7 +32,7 @@
     - name: Run the Pystol module to stress memory some random pods
       pystol.actions.memory_stress_pod:
         namespace: "{{ pystol_memorystresspod_namespace|default('default')}}"
-        distribution: "{{ pystol_memorystresspod_pod|default('random poisson') }}"
+        pod: "{{ pystol_memorystresspod_pod|default('random poisson') }}"
         amount: "{{ pystol_memorystresspod_amount|default(3) }}"
       register: testout
     - debug: msg="{{ testout.stderr }}"

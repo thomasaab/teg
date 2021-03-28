@@ -32,7 +32,7 @@
     - name: Run the Pystol module to stress cpu some random pods
       pystol.actions.cpu_stress_pod:
         namespace: "{{ pystol_cpustresspod_namespace|default('default')}}"
-        distribution: "{{ pystol_cpustresspod_pod|default('random poisson') }}"
+        pod: "{{ pystol_cpustresspod_pod|default('random poisson') }}"
         amount: "{{ pystol_cpustresspod_amount|default(3) }}"
       register: testout
     - debug: msg="{{ testout.stderr }}"

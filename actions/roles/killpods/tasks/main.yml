@@ -32,7 +32,7 @@
     - name: Run the Pystol module to kill some random pods
       pystol.actions.kill_pods:
         namespace: "{{ pystol_killpods_namespace|default('default')}}"
-        distribution: "{{ pystol_killpods_pod|default('random poisson') }}"
+        pod: "{{ pystol_killpods_pod|default('random poisson') }}"
         amount: "{{ pystol_killpods_amount|default(3) }}"
       register: testout
     - debug: msg="{{ testout.stderr }}"
