@@ -170,9 +170,7 @@ def run_module():
     # random numbers from poisson distribution
     n = amount
     a = 0
-    data_poisson = poisson.rvs(mu=10, size=n, loc=a)
-    counts, bins, bars = plt.hist(data_poisson)
-    plt.close()
+    
     load_kubernetes_config()
     configuration = client.Configuration()
     configuration.assert_hostname = False
@@ -209,9 +207,9 @@ def run_module():
             global_kill.append((datetime.datetime.now(), int(experiment)))
             time.sleep(10)
             print(datetime.datetime.now())
-        else:
-            pod = get_pod_by_name(namespace=namespace,name=podName)
-            inyect_latency(pod, module)
+    else:
+        pod = get_pod_by_name(namespace=namespace,name=podName)
+        inyect_latency(pod, module)
     print("Ending histogram execution")
 
     if module.check_mode:

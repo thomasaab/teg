@@ -203,9 +203,9 @@ def run_module():
             global_kill.append((datetime.datetime.now(), int(experiment)))
             time.sleep(10)
             print(datetime.datetime.now())
-        else:
-            pod = get_pod_by_name(namespace=namespace,name=podName)
-            delete_pod(pod.metadata.name, pod.metadata.namespace)
+    else:
+        pod = get_pod_by_name(namespace=namespace,name=podName)
+        delete_pod(pod.metadata.name, pod.metadata.namespace)
     print("Ending histogram execution")
 
     if module.check_mode:

@@ -80,7 +80,7 @@ def main():
     client.api_client.ApiClient(configuration=configuration)
 
     # podName = module.params['pod']
-    podName = "ko"
+    podName = "mynginxapp"
     amount = 1
     n = amount
     a = 0
