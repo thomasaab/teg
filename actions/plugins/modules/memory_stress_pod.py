@@ -138,7 +138,7 @@ def run_module():
     # define available arguments/parameters a user can pass to the module
     module_args = dict(
         namespace=dict(type='str', required=True),
-        distribution=dict(type='str', required=True),
+        pod=dict(type='str', required=True),
         amount=dict(type='int', required=True),
     )
 

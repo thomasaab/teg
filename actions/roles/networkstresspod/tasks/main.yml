@@ -32,7 +32,7 @@
     - name: Run the Pystol module to stress network some random pods
       pystol.actions.network_stress_pod:
         namespace: "{{ pystol_networkstresspod_namespace|default('default')}}"
-        distribution: "{{ pystol_networkstresspod_distribution|default('poisson') }}"
+        distribution: "{{ pystol_networkstresspod_pod|default('random poisson') }}"
         amount: "{{ pystol_networkstresspod_amount|default(3) }}"
       register: testout
     - debug: msg="{{ testout.stderr }}"

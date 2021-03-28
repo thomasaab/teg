@@ -32,7 +32,7 @@
     - name: Run the Pystol module to stress disk some random pods
       pystol.actions.disk_stress_pod:
         namespace: "{{ pystol_diskstresspod_namespace|default('default')}}"
-        distribution: "{{ pystol_diskstresspod_distribution|default('poisson') }}"
+        distribution: "{{ pystol_diskstresspod_pod|default('random poisson') }}"
         amount: "{{ pystol_diskstresspod_amount|default(3) }}"
       register: testout
     - debug: msg="{{ testout.stderr }}"

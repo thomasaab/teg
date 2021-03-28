@@ -32,7 +32,7 @@
     - name: Run the Pystol module to kill some random pods
       pystol.actions.kill_pods:
         namespace: "{{ pystol_killpods_namespace|default('default')}}"
-        distribution: "{{ pystol_killpods_distribution|default('poisson') }}"
+        distribution: "{{ pystol_killpods_pod|default('random poisson') }}"
         amount: "{{ pystol_killpods_amount|default(3) }}"
       register: testout
     - debug: msg="{{ testout.stderr }}"
@@ -49,7 +49,6 @@
     - name: Update the CR as ended OK
       block:
         - debug:
-
             msg: "Action ended OK: {{ pystol_action_id }}"
         - name: Change the CR action state
           pystol.actions.patch_cr:
