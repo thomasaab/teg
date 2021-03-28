@@ -133,6 +133,13 @@ def get_pods(namespace=''):
     except ApiException as e:
         print("CoreV1Api->list_pod_for_all_namespaces: %s\n" % e)
 
+def get_pod_by_name(namespace='',name=''):
+    api_instance = client.CoreV1Api()
+    try:
+        resp = api_instance.read_namespaced_pod(name=name, namespace=namespace)
+        return resp
+    except ApiException as e:
+        print("CoreV1Api->read_namespaced_pod: %s\n" % e)   
 
 def run_module():
     # define available arguments/parameters a user can pass to the module
@@ -175,41 +182,46 @@ def run_module():
     # random numbers from poisson distribution
     n = amount
     a = 0
-    data_poisson = poisson.rvs(mu=10, size=n, loc=a)
-    counts, bins, bars = plt.hist(data_poisson)
-    plt.close()
+
     load_kubernetes_config()
     configuration = client.Configuration()
     configuration.assert_hostname = False
     client.api_client.ApiClient(configuration=configuration)
 
+    podName = module.params['pod']
+    if(podName == 'random poisson'):
+        data_poisson = poisson.rvs(mu=10, size=n, loc=a)
+        counts, bins, bars = plt.hist(data_poisson)
+        plt.close()
+        for experiment in counts:
+            pod_list = get_pods(namespace=namespace)
+            aux_li = []
+            for fil in pod_list.items:
+                if fil.status.phase == "Running":
+                    aux_li.append(fil)
+            pod_list = aux_li
 
-    for experiment in counts:
-        pod_list = get_pods(namespace=namespace)
-        aux_li = []
-        for fil in pod_list.items:
-            if fil.status.phase == "Running":
-                aux_li.append(fil)
-        pod_list = aux_li
+            # From the Running pods I randomly choose those to die
+            # based on the histogram length
+            print("-------")
+            print("Pod list length: " + str(len(pod_list)))
+            print("Number of pods to get: " + str(int(experiment)))
+            print("-------")
+            # In the case of the experiment being longer than the pod list,
+            # then the maximum will be the lenght of the pod list
+            if (int(experiment) > len(pod_list)):
+                to_be_disk = random.sample(pod_list, len(pod_list))
+            else:
+                to_be_disk = random.sample(pod_list, int(experiment))
 
-        # From the Running pods I randomly choose those to die
-        # based on the histogram length
-        print("-------")
-        print("Pod list length: " + str(len(pod_list)))
-        print("Number of pods to get: " + str(int(experiment)))
-        print("-------")
-        # In the case of the experiment being longer than the pod list,
-        # then the maximum will be the lenght of the pod list
-        if (int(experiment) > len(pod_list)):
-            to_be_disk = random.sample(pod_list, len(pod_list))
+            for pod in to_be_disk:
+                inyect_disk(pod.metadata.name, pod.metadata.namespace, module)
+            global_kill.append((datetime.datetime.now(), int(experiment)))
+            # time.sleep(10)
+            print(datetime.datetime.now())
         else:
-            to_be_disk = random.sample(pod_list, int(experiment))
-
-        for pod in to_be_disk:
+            pod = get_pod_by_name(namespace=namespace,name=podName)
             inyect_disk(pod.metadata.name, pod.metadata.namespace, module)
-        global_kill.append((datetime.datetime.now(), int(experiment)))
-        # time.sleep(10)
-        print(datetime.datetime.now())
     print("Ending histogram execution")
 
     if module.check_mode:
