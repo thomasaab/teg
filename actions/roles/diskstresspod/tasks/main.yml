@@ -34,6 +34,7 @@
         namespace: "{{ pystol_diskstresspod_namespace|default('default')}}"
         pod: "{{ pystol_diskstresspod_pod|default('random poisson') }}"
         amount: "{{ pystol_diskstresspod_amount|default(3) }}"
+        duration: "{{ pystol_diskstresspod_duration|default(5) }}"
       register: testout
     - debug: msg="{{ testout.stderr }}"
     - debug: msg="{{ testout.stdout }}"

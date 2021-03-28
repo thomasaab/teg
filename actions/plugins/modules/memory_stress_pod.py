@@ -96,7 +96,7 @@ global_unavailable = []
 global_kill = []
 
 
-def inyect_memory(name, namespace, module):
+def inyect_memory(name, namespace, module, duration):
     api_instance = client.CoreV1Api()
     module.log(msg="pod: " + name)
     try:
@@ -109,7 +109,7 @@ def inyect_memory(name, namespace, module):
     exec_command = [
         '/bin/sh',
         '-c',
-        'apt update; apt-get install -y stress-ng; stress-ng --version; stress-ng --vm 2 --vm-bytes 2048M --vm-method all --verify -t 2m -v',
+        'apt update; apt-get install -y stress-ng; stress-ng --version; stress-ng --vm 2 --vm-bytes 2048M --vm-method all --verify -t '+duration+'m -v',
         ]
     resp = stream(api_instance.connect_get_namespaced_pod_exec,
                   name,
@@ -147,6 +147,7 @@ def run_module():
         namespace=dict(type='str', required=True),
         pod=dict(type='str', required=True),
         amount=dict(type='int', required=True),
+        duration=dict(type='int', required=True),
     )
 
     module = AnsibleModule(
@@ -182,6 +183,7 @@ def run_module():
     # random numbers from poisson distribution
     n = amount
     a = 0
+    duration = module.params['duration']
     load_kubernetes_config()
     configuration = client.Configuration()
     configuration.assert_hostname = False
@@ -214,13 +216,13 @@ def run_module():
                 to_be_memory = random.sample(pod_list, int(experiment))
 
             for pod in to_be_memory:
-                inyect_memory(pod.metadata.name, pod.metadata.namespace, module)
+                inyect_memory(pod.metadata.name, pod.metadata.namespace, module, duration)
             global_kill.append((datetime.datetime.now(), int(experiment)))
             # time.sleep(10)
             print(datetime.datetime.now())
     else:
         pod = get_pod_by_name(namespace=namespace,name=podName)
-        inyect_memory(pod.metadata.name, pod.metadata.namespace, module)
+        inyect_memory(pod.metadata.name, pod.metadata.namespace, module,duration)
     print("Ending histogram execution")
 
     if module.check_mode:

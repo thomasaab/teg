@@ -34,6 +34,7 @@
         namespace: "{{ pystol_networkstresspod_namespace|default('default')}}"
         pod: "{{ pystol_networkstresspod_pod|default('random poisson') }}"
         amount: "{{ pystol_networkstresspod_amount|default(3) }}"
+        duration: "{{ pystol_networkstresspod_duration|default(5) }}"
       register: testout
     - debug: msg="{{ testout.stderr }}"
     - debug: msg="{{ testout.stdout }}"

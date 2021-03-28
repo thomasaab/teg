@@ -96,7 +96,7 @@ global_unavailable = []
 global_kill = []
 
 
-def inyect_disk(name, namespace, module):
+def inyect_disk(name, namespace, module, duration):
     api_instance = client.CoreV1Api()
     module.log(msg="pod: " + name)
     try:
@@ -109,7 +109,7 @@ def inyect_disk(name, namespace, module):
     exec_command = [
         '/bin/sh',
         '-c',
-        'apt update; apt-get install -y stress-ng; stress-ng --hdd 1 --aggressive --timeout 2m',
+        'apt update; apt-get install -y stress-ng; stress-ng --hdd 1 --aggressive --timeout '+duration+'m',
         ]
     resp = stream(api_instance.connect_get_namespaced_pod_exec,
                   name,
@@ -182,7 +182,7 @@ def run_module():
     # random numbers from poisson distribution
     n = amount
     a = 0
-
+    duration = module.params['duration']
     load_kubernetes_config()
     configuration = client.Configuration()
     configuration.assert_hostname = False
@@ -215,13 +215,13 @@ def run_module():
                 to_be_disk = random.sample(pod_list, int(experiment))
 
             for pod in to_be_disk:
-                inyect_disk(pod.metadata.name, pod.metadata.namespace, module)
+                inyect_disk(pod.metadata.name, pod.metadata.namespace, module, duration)
             global_kill.append((datetime.datetime.now(), int(experiment)))
             # time.sleep(10)
             print(datetime.datetime.now())
     else:
         pod = get_pod_by_name(namespace=namespace,name=podName)
-        inyect_disk(pod.metadata.name, pod.metadata.namespace, module)
+        inyect_disk(pod.metadata.name, pod.metadata.namespace, module, duration)
     print("Ending histogram execution")
 
     if module.check_mode:

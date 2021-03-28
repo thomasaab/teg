@@ -34,6 +34,7 @@
         namespace: "{{ pystol_memorystresspod_namespace|default('default')}}"
         pod: "{{ pystol_memorystresspod_pod|default('random poisson') }}"
         amount: "{{ pystol_memorystresspod_amount|default(3) }}"
+        duration: "{{ pystol_memorystresspod_duration|default(5) }}"
       register: testout
     - debug: msg="{{ testout.stderr }}"
     - debug: msg="{{ testout.stdout }}"
