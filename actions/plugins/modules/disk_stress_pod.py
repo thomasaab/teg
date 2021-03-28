@@ -147,6 +147,7 @@ def run_module():
         namespace=dict(type='str', required=True),
         pod=dict(type='str', required=True),
         amount=dict(type='int', required=True),
+        duration=dict(type='int', required=True),
     )
 
     module = AnsibleModule(
