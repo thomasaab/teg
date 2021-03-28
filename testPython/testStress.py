@@ -52,6 +52,13 @@ def get_pods(namespace=''):
         return api_response
     except ApiException as e:
         print("CoreV1Api->list_pod_for_all_namespaces: %s\n" % e)
+        
+def get_pod_by_name(namespace='',name=''):
+    try:
+        resp = api_instance.read_namespaced_pod(name=name, namespace=namespace)
+        return resp
+    except ApiException as e:
+        print("CoreV1Api->read_namespaced_pod: %s\n" % e)    
 
 def main():
     # contexts, active_context = config.list_kube_config_contexts()
