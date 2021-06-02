@@ -96,14 +96,14 @@ global_unavailable = []
 global_kill = []
 
 
-def inyect_latency(pod, module, duration):
+def inyect_latency(pod, module, duration, latency):
     print("%s\t%s\t%s" % (pod.status.pod_ip, pod.metadata.namespace, pod.metadata.name))
     for p in pod.status.container_statuses:  
         module.log(msg=p.name + " " + p.container_id)
         f = os.popen("docker inspect --format '{{ .State.Pid }}' " + p.container_id.replace('docker://', ''))
         pid = f.read()
         module.log(msg="number process= " + pid) 
-        res = os.popen("sudo nsenter -t " + pid.rstrip("\n") + " -n tc qdisc add dev eth0 root netem delay 100ms")
+        res = os.popen("sudo nsenter -t " + pid.rstrip("\n") + " -n tc qdisc add dev eth0 root netem delay "+str(latency)+"ms")
         now2 = res.read()
 
         time.sleep(duration * 60)
@@ -139,6 +139,7 @@ def run_module():
         pod=dict(type='str', required=True),
         amount=dict(type='int', required=True),
         duration=dict(type='int', required=True),
+        latency=dict(type='int', required=True),
     )
 
     module = AnsibleModule(
@@ -175,6 +176,7 @@ def run_module():
     n = amount
     a = 0
     duration = module.params['duration']
+    latency = module.params['latency']
     load_kubernetes_config()
     configuration = client.Configuration()
     configuration.assert_hostname = False
@@ -207,13 +209,13 @@ def run_module():
                 to_be_latency = random.sample(pod_list, int(experiment))
 
             for pod in to_be_latency:
-                inyect_latency(pod, module, duration)
+                inyect_latency(pod, module, duration, latency)
             global_kill.append((datetime.datetime.now(), int(experiment)))
             time.sleep(10)
             print(datetime.datetime.now())
     else:
         pod = get_pod_by_name(namespace=namespace,name=podName)
-        inyect_latency(pod, module, duration)
+        inyect_latency(pod, module, duration, latency)
     print("Ending histogram execution")
 
     if module.check_mode:
