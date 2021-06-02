@@ -35,7 +35,7 @@
         pod: "{{ pystol_networkstresspod_pod|default('random poisson') }}"
         amount: "{{ pystol_networkstresspod_amount|default(3) }}"
         duration: "{{ pystol_networkstresspod_duration|default(5) }}"
-        latency: "{{ pystol_networkstresspod_latency|default(400) }}",
+        latency: "{{ pystol_networkstresspod_latency|default(400) }}"
       register: testout
     - debug: msg="{{ testout.stderr }}"
     - debug: msg="{{ testout.stdout }}"
