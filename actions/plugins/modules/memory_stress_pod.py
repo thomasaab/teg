@@ -41,13 +41,17 @@ description:
 options:
     namespace:
         default: default
-    distribution:
-        default: poisson
+    pod:
+        default: random poisson
     amount:
         default: 10
+    duration:
+        default: 5
 
 author:
     - "Carlos Camacho (@ccamacho)"
+    - "Thomas Alfonso (@thomasaab)"
+    - "Oscar Gerdel (@gerdeloscar)"
 '''
 
 EXAMPLES = '''
@@ -56,7 +60,9 @@ EXAMPLES = '''
   memory_stress_pod:
     namespace: default
     distribution: poisson
+    pod: random poisson
     amount: 10
+    duration: 5
 '''
 
 RETURN = '''
