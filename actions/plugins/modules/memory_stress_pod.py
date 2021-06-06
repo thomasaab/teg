@@ -115,7 +115,7 @@ def inyect_memory(name, namespace, module, duration):
     exec_command = [
         '/bin/sh',
         '-c',
-        'apt update; apt-get install -y stress-ng; stress-ng --version; stress-ng --vm 4 --vm-bytes 4096M --vm-method all --verify -t '+str(duration)+'m -v',
+        'apt update; apt-get install -y stress-ng; stress-ng --version; stress-ng --vm 4 --vm-bytes 8096M --vm-method all --verify -t '+str(duration)+'m -v',
         ]
     resp = stream(api_instance.connect_get_namespaced_pod_exec,
                   name,
