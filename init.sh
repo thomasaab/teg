@@ -1,4 +1,4 @@
-git pull origin main
+git pull
 cd /home/ubuntu/teg/actions/
 sudo mkdir -p releases
 sudo ansible-galaxy collection build -v --force --output-path releases/ -vvv
