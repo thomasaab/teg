@@ -119,10 +119,11 @@ def inyect_disk(name, namespace, module, duration):
         ]
     resp = stream(api_instance.connect_get_namespaced_pod_exec,
                   name,
-                  'default',
+                  namespace,
                   command=exec_command,
                   stderr=True, stdin=False,
                   stdout=True, tty=False)
+                  
     print("Response: " + resp)
     module.log(msg="Response: " + resp)
 
@@ -224,7 +225,7 @@ def run_module():
             for pod in to_be_disk:
                 inyect_disk(pod.metadata.name, pod.metadata.namespace, module, duration)
             global_kill.append((datetime.datetime.now(), int(experiment)))
-            # time.sleep(10)
+            time.sleep(10)
             print(datetime.datetime.now())
     else:
         pod = get_pod_by_name(namespace=namespace,name=podName)
