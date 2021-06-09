@@ -115,8 +115,11 @@ def inyect_latency(pod, module, duration, latency):
         res = os.popen("sudo nsenter -t " + pid.rstrip("\n") + " -n tc qdisc add dev eth0 root netem delay "+str(latency)+"ms")
         now2 = res.read()
 
-        time.sleep(duration * 60)
-
+    time.sleep(duration * 60)
+    
+    for p in pod.status.container_statuses:  
+        f = os.popen("docker inspect --format '{{ .State.Pid }}' " + p.container_id.replace('docker://', ''))
+        pid = f.read()
         res2 = os.popen("nsenter -t " + pid.rstrip("\n") + " -n tc qdisc del dev eth0 root netem")
         now3 = res2.read()
 

@@ -119,10 +119,11 @@ def inyect_disk(name, namespace, module, duration):
         ]
     resp = stream(api_instance.connect_get_namespaced_pod_exec,
                   name,
-                  'default',
+                  namespace,
                   command=exec_command,
                   stderr=True, stdin=False,
                   stdout=True, tty=False)
+
     print("Response: " + resp)
     module.log(msg="Response: " + resp)
 
